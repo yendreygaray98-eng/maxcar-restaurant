@@ -18,7 +18,7 @@ export async function PATCH(
       );
     }
 
-    const diferencia = body.montoReal - arqueoActual.totalEsperado;
+    const diferencia = Number(body.montoReal) - Number(arqueoActual.totalEsperado);
 
     const arqueo = await prisma.arqueo.update({
       where: { id },
