@@ -1,3 +1,4 @@
+// Middleware para autenticación
 import { auth } from './auth';
 
 export default auth((req) => {
