@@ -7,11 +7,11 @@ interface Producto {
   id: string;
   codigo: string;
   nombre: string;
-  descripcion: string | null;
+  descripcion?: string | null;
   precio: number;
   stockActual: number | null;
   stockMinimo: number | null;
-  categoria: {
+  categoria?: {
     id: string;
     nombre: string;
     codigo: string;
