@@ -9,7 +9,16 @@ export async function PATCH(
     const { id } = await params;
     const body = await request.json();
     
-    const diferencia = body.montoReal - (await prisma.arqueo.findUnique({ where: { id } }))!.totalEsperado;
+    const arqueoActual = await prisma.arqueo.findUnique({ where: { id } });
+    
+    if (!arqueoActual) {
+      return NextResponse.json(
+        { error: 'Arqueo no encontrado' },
+        { status: 404 }
+      );
+    }
+
+    const diferencia = body.montoReal - arqueoActual.totalEsperado;
 
     const arqueo = await prisma.arqueo.update({
       where: { id },
