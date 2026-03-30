@@ -6,9 +6,15 @@ interface Producto {
   id: string;
   codigo: string;
   nombre: string;
+  descripcion?: string | null;
   stockActual: number | null;
   stockMinimo: number | null;
   precio: number;
+  categoria?: {
+    id: string;
+    nombre: string;
+    codigo: string;
+  };
 }
 
 interface Props {
