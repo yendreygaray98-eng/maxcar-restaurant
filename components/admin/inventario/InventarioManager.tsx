@@ -31,7 +31,7 @@ interface Props {
 
 export default function InventarioManager({ productos: productosIniciales, categorias }: Props) {
   // Filtrar solo productos con stock (bebidas)
-  const productosConStockInicial = productosIniciales.filter(p => p.categoria.codigo === 'BEB');
+  const productosConStockInicial = productosIniciales.filter(p => p.categoria?.codigo === 'BEB');
   const [productos, setProductos] = useState(productosConStockInicial);
   
   // Filtrar solo categorías de bebidas
@@ -44,7 +44,7 @@ export default function InventarioManager({ productos: productosIniciales, categ
   const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null);
 
   const productosFiltrados = productos.filter((producto) => {
-    const matchCategoria = !filtroCategoria || producto.categoria.id === filtroCategoria;
+    const matchCategoria = !filtroCategoria || producto.categoria?.id === filtroCategoria;
     const matchBusqueda = !busqueda || 
       producto.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
       producto.codigo.toLowerCase().includes(busqueda.toLowerCase());
@@ -236,7 +236,7 @@ export default function InventarioManager({ productos: productosIniciales, categ
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded">
-                        {producto.categoria.nombre}
+                        {producto.categoria?.nombre || 'Sin categoría'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
