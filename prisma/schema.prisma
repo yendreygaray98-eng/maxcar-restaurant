@@ -1,0 +1,160 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  nombre    String
+  rol       Rol
+  estado    EstadoUsuario @default(ACTIVO)
+  createdAt DateTime @default(now()) @map("creado_en")
+  updatedAt DateTime @updatedAt @map("actualizado_en")
+
+  @@map("usuarios")
+}
+
+model Categoria {
+  id          String     @id @default(uuid())
+  codigo      String     @unique
+  nombre      String
+  descripcion String?
+  productos   Producto[]
+  createdAt   DateTime   @default(now()) @map("creado_en")
+
+  @@map("categorias")
+}
+
+model Producto {
+  id           String         @id @default(uuid())
+  codigo       String         @unique
+  nombre       String
+  descripcion  String?
+  precio       Decimal        @db.Decimal(10, 2)
+  imagen       String?
+  stockActual  Int?           @map("stock_actual")
+  stockMinimo  Int?           @map("stock_minimo")
+  categoriaId  String         @map("categoria_id")
+  categoria    Categoria      @relation(fields: [categoriaId], references: [id])
+  createdAt    DateTime       @default(now()) @map("creado_en")
+  updatedAt    DateTime       @updatedAt @map("actualizado_en")
+  detalles     DetallePedido[]
+
+  @@map("productos")
+}
+
+model Mesa {
+  id         String      @id @default(uuid())
+  numero     Int         @unique
+  tipo       TipoMesa
+  capacidad  Int
+  estado     EstadoMesa  @default(LIBRE)
+  pedidos    Pedido[]
+  createdAt  DateTime    @default(now()) @map("creado_en")
+  updatedAt  DateTime    @updatedAt @map("actualizado_en")
+
+  @@map("mesas")
+}
+
+model Pedido {
+  id          String          @id @default(uuid())
+  numero      String          @unique
+  mesaId      String          @map("mesa_id")
+  mesa        Mesa            @relation(fields: [mesaId], references: [id])
+  usuarioId   String          @map("usuario_id")
+  estado      EstadoPedido    @default(PENDIENTE)
+  metodoPago  MetodoPago?     @map("metodo_pago")
+  subtotal    Decimal         @db.Decimal(10, 2)
+  cargoVip    Decimal         @default(0) @map("cargo_vip") @db.Decimal(10, 2)
+  iva         Decimal         @db.Decimal(10, 2)
+  total       Decimal         @db.Decimal(10, 2)
+  detalles    DetallePedido[]
+  createdAt   DateTime        @default(now()) @map("creado_en")
+  updatedAt   DateTime        @updatedAt @map("actualizado_en")
+
+  @@map("pedidos")
+}
+
+model DetallePedido {
+  id          String   @id @default(uuid())
+  pedidoId    String   @map("pedido_id")
+  pedido      Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  productoId  String   @map("producto_id")
+  producto    Producto @relation(fields: [productoId], references: [id])
+  cantidad    Int
+  precioUnit  Decimal  @map("precio_unitario") @db.Decimal(10, 2)
+  subtotal    Decimal  @db.Decimal(10, 2)
+  notas       String?
+
+  @@map("detalles_pedido")
+}
+
+model Arqueo {
+  id              String        @id @default(uuid())
+  usuarioId       String        @map("usuario_id")
+  fechaApertura   DateTime      @default(now()) @map("fecha_apertura")
+  fechaCierre     DateTime?     @map("fecha_cierre")
+  montoInicial    Decimal       @map("monto_inicial") @db.Decimal(10, 2)
+  ventasEfectivo  Decimal       @default(0) @map("ventas_efectivo") @db.Decimal(10, 2)
+  ventasTarjeta   Decimal       @default(0) @map("ventas_tarjeta") @db.Decimal(10, 2)
+  ventasTransfer  Decimal       @default(0) @map("ventas_transferencia") @db.Decimal(10, 2)
+  totalEsperado   Decimal       @default(0) @map("total_esperado") @db.Decimal(10, 2)
+  montoReal       Decimal?      @map("monto_real") @db.Decimal(10, 2)
+  diferencia      Decimal?      @db.Decimal(10, 2)
+  estado          EstadoArqueo  @default(ABIERTO)
+  observaciones   String?
+  createdAt       DateTime      @default(now()) @map("creado_en")
+  updatedAt       DateTime      @updatedAt @map("actualizado_en")
+
+  @@map("arqueos")
+}
+
+enum MetodoPago {
+  EFECTIVO
+  TARJETA
+  TRANSFERENCIA
+}
+
+enum EstadoArqueo {
+  ABIERTO
+  CERRADO
+}
+
+enum Rol {
+  ADMINISTRADOR
+  MESERO
+  CHEF
+  CAJERO
+  RECEPCIONISTA
+}
+
+enum EstadoUsuario {
+  ACTIVO
+  INACTIVO
+}
+
+enum TipoMesa {
+  VIP
+  REGULAR
+}
+
+enum EstadoMesa {
+  LIBRE
+  OCUPADA
+  RESERVADA
+  MANTENIMIENTO
+}
+
+enum EstadoPedido {
+  PENDIENTE
+  EN_PREPARACION
+  LISTO
+  ENTREGADO
+  CANCELADO
+}
