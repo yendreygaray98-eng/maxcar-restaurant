@@ -73,6 +73,9 @@ model Pedido {
   numeroFactura    String?         @unique @map("numero_factura")
   clienteNombre    String?         @map("cliente_nombre")
   clienteDocumento String?         @map("cliente_documento")
+  referenciaTransaccion String?    @map("referencia_transaccion")
+  ultimos4Digitos  String?         @map("ultimos_4_digitos")
+  notasPago        String?         @map("notas_pago")
   subtotal         Decimal         @db.Decimal(10, 2)
   cargoVip         Decimal         @default(0) @map("cargo_vip") @db.Decimal(10, 2)
   iva              Decimal         @db.Decimal(10, 2)
@@ -99,21 +102,37 @@ model DetallePedido {
 }
 
 model Arqueo {
-  id              String        @id @default(uuid())
-  usuarioId       String        @map("usuario_id")
-  fechaApertura   DateTime      @default(now()) @map("fecha_apertura")
-  fechaCierre     DateTime?     @map("fecha_cierre")
-  montoInicial    Decimal       @map("monto_inicial") @db.Decimal(10, 2)
-  ventasEfectivo  Decimal       @default(0) @map("ventas_efectivo") @db.Decimal(10, 2)
-  ventasTarjeta   Decimal       @default(0) @map("ventas_tarjeta") @db.Decimal(10, 2)
-  ventasTransfer  Decimal       @default(0) @map("ventas_transferencia") @db.Decimal(10, 2)
-  totalEsperado   Decimal       @default(0) @map("total_esperado") @db.Decimal(10, 2)
-  montoReal       Decimal?      @map("monto_real") @db.Decimal(10, 2)
-  diferencia      Decimal?      @db.Decimal(10, 2)
-  estado          EstadoArqueo  @default(ABIERTO)
-  observaciones   String?
-  createdAt       DateTime      @default(now()) @map("creado_en")
-  updatedAt       DateTime      @updatedAt @map("actualizado_en")
+  id                String        @id @default(uuid())
+  usuarioId         String        @map("usuario_id")
+  usuarioCierreId   String?       @map("usuario_cierre_id")
+  fechaApertura     DateTime      @default(now()) @map("fecha_apertura")
+  fechaCierre       DateTime?     @map("fecha_cierre")
+  montoInicial      Decimal       @map("monto_inicial") @db.Decimal(10, 2)
+  
+  // Desglose de billetes y monedas
+  billetes100k      Int           @default(0) @map("billetes_100k")
+  billetes50k       Int           @default(0) @map("billetes_50k")
+  billetes20k       Int           @default(0) @map("billetes_20k")
+  billetes10k       Int           @default(0) @map("billetes_10k")
+  billetes5k        Int           @default(0) @map("billetes_5k")
+  billetes2k        Int           @default(0) @map("billetes_2k")
+  billetes1k        Int           @default(0) @map("billetes_1k")
+  monedas1k         Int           @default(0) @map("monedas_1k")
+  monedas500        Int           @default(0) @map("monedas_500")
+  monedas200        Int           @default(0) @map("monedas_200")
+  monedas100        Int           @default(0) @map("monedas_100")
+  monedas50         Int           @default(0) @map("monedas_50")
+  
+  ventasEfectivo    Decimal       @default(0) @map("ventas_efectivo") @db.Decimal(10, 2)
+  ventasTarjeta     Decimal       @default(0) @map("ventas_tarjeta") @db.Decimal(10, 2)
+  ventasTransfer    Decimal       @default(0) @map("ventas_transferencia") @db.Decimal(10, 2)
+  totalEsperado     Decimal       @default(0) @map("total_esperado") @db.Decimal(10, 2)
+  montoReal         Decimal?      @map("monto_real") @db.Decimal(10, 2)
+  diferencia        Decimal?      @db.Decimal(10, 2)
+  estado            EstadoArqueo  @default(ABIERTO)
+  observaciones     String?
+  createdAt         DateTime      @default(now()) @map("creado_en")
+  updatedAt         DateTime      @updatedAt @map("actualizado_en")
 
   @@map("arqueos")
 }

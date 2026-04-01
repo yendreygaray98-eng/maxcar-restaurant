@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import ArqueoModal from './ArqueoModal';
+import ArqueoModalMejorado from './ArqueoModalMejorado';
 
 interface Producto {
   id: string;
@@ -42,9 +42,10 @@ interface Pedido {
 interface Props {
   pedidos: Pedido[];
   usuarioId: string;
+  usuarioEmail: string;
 }
 
-export default function CajeroManager({ pedidos: pedidosIniciales, usuarioId }: Props) {
+export default function CajeroManager({ pedidos: pedidosIniciales, usuarioId, usuarioEmail }: Props) {
   const router = useRouter();
   const [pedidos, setPedidos] = useState(pedidosIniciales);
   const [pedidoSeleccionado, setPedidoSeleccionado] = useState<Pedido | null>(null);
@@ -58,6 +59,9 @@ export default function CajeroManager({ pedidos: pedidosIniciales, usuarioId }: 
   const [ventaCompletada, setVentaCompletada] = useState<string | null>(null);
   const [actualizando, setActualizando] = useState(false);
   const [ultimaActualizacion, setUltimaActualizacion] = useState(new Date());
+  const [referenciaTransaccion, setReferenciaTransaccion] = useState('');
+  const [ultimos4Digitos, setUltimos4Digitos] = useState('');
+  const [notasPago, setNotasPago] = useState('');
 
   useEffect(() => {
     // Actualizar pedidos cuando cambien los props
@@ -104,6 +108,20 @@ export default function CajeroManager({ pedidos: pedidosIniciales, usuarioId }: 
         body.clienteDocumento = clienteDocumento;
       }
 
+      // Agregar datos de comprobante para tarjeta/transferencia
+      if (metodoPago === 'TARJETA' && ultimos4Digitos) {
+        body.ultimos4Digitos = ultimos4Digitos;
+        body.referenciaTransaccion = referenciaTransaccion;
+      }
+      
+      if (metodoPago === 'TRANSFERENCIA' && referenciaTransaccion) {
+        body.referenciaTransaccion = referenciaTransaccion;
+      }
+      
+      if (notasPago) {
+        body.notasPago = notasPago;
+      }
+
       const response = await fetch(`/api/pedidos/${pedidoSeleccionado.id}`, {
         method: 'PATCH',
         headers: {
@@ -130,6 +148,9 @@ export default function CajeroManager({ pedidos: pedidosIniciales, usuarioId }: 
       setRequiereFactura(false);
       setClienteNombre('');
       setClienteDocumento('');
+      setReferenciaTransaccion('');
+      setUltimos4Digitos('');
+      setNotasPago('');
       router.refresh();
     } catch (error) {
       alert('Error al procesar el pago');
@@ -456,6 +477,70 @@ export default function CajeroManager({ pedidos: pedidosIniciales, usuarioId }: 
                 </div>
               )}
 
+              {/* Campos de comprobante para Tarjeta */}
+              {metodoPago === 'TARJETA' && (
+                <div className="space-y-3 bg-purple-50 p-4 rounded-lg border border-purple-200">
+                  <p className="text-sm font-medium text-purple-900 mb-2">Datos del Voucher</p>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Últimos 4 dígitos de la tarjeta
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={4}
+                      value={ultimos4Digitos}
+                      onChange={(e) => setUltimos4Digitos(e.target.value.replace(/\D/g, ''))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      placeholder="1234"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Número de autorización (opcional)
+                    </label>
+                    <input
+                      type="text"
+                      value={referenciaTransaccion}
+                      onChange={(e) => setReferenciaTransaccion(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      placeholder="Número del voucher"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Campos de comprobante para Transferencia */}
+              {metodoPago === 'TRANSFERENCIA' && (
+                <div className="space-y-3 bg-green-50 p-4 rounded-lg border border-green-200">
+                  <p className="text-sm font-medium text-green-900 mb-2">Datos de la Transferencia</p>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Número de referencia *
+                    </label>
+                    <input
+                      type="text"
+                      value={referenciaTransaccion}
+                      onChange={(e) => setReferenciaTransaccion(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      placeholder="Ej: 123456789"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Notas (opcional)
+                    </label>
+                    <input
+                      type="text"
+                      value={notasPago}
+                      onChange={(e) => setNotasPago(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      placeholder="Banco, hora, etc."
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="flex gap-3 pt-4">
                 <button
                   onClick={() => {
@@ -486,9 +571,10 @@ export default function CajeroManager({ pedidos: pedidosIniciales, usuarioId }: 
 
       {/* Modal de Arqueo */}
       {mostrarArqueo && (
-        <ArqueoModal 
+        <ArqueoModalMejorado 
           onClose={() => setMostrarArqueo(false)}
           usuarioId={usuarioId}
+          usuarioEmail={usuarioEmail}
         />
       )}
 

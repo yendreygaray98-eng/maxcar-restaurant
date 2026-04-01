@@ -83,6 +83,7 @@ export default async function CajeroPage() {
         <CajeroManager 
           pedidos={JSON.parse(JSON.stringify(pedidosListos))} 
           usuarioId={usuarioId}
+          usuarioEmail={session.user.email || ''}
         />
       </div>
     </div>

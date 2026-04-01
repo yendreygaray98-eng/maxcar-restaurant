@@ -56,6 +56,17 @@ export async function PATCH(
       updateData.clienteDocumento = body.clienteDocumento;
     }
 
+    // Guardar datos de comprobante de pago
+    if (body.referenciaTransaccion) {
+      updateData.referenciaTransaccion = body.referenciaTransaccion;
+    }
+    if (body.ultimos4Digitos) {
+      updateData.ultimos4Digitos = body.ultimos4Digitos;
+    }
+    if (body.notasPago) {
+      updateData.notasPago = body.notasPago;
+    }
+
     const pedido = await prisma.pedido.update({
       where: { id },
       data: updateData,
