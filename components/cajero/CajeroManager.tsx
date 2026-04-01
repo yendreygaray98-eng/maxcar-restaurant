@@ -55,6 +55,7 @@ export default function CajeroManager({ pedidos: pedidosIniciales, usuarioId }: 
   const [requiereFactura, setRequiereFactura] = useState(false);
   const [clienteNombre, setClienteNombre] = useState('');
   const [clienteDocumento, setClienteDocumento] = useState('');
+  const [ventaCompletada, setVentaCompletada] = useState<string | null>(null);
 
   const handleCobrar = async () => {
     if (!pedidoSeleccionado) return;
@@ -96,8 +97,14 @@ export default function CajeroManager({ pedidos: pedidosIniciales, usuarioId }: 
         throw new Error('Error al procesar el pago');
       }
 
+      const ventaProcesada = await response.json();
+
       // Remover de la lista
       setPedidos(pedidos.filter(p => p.id !== pedidoSeleccionado.id));
+      
+      // Mostrar modal de éxito con opción de descargar factura
+      setVentaCompletada(ventaProcesada.id);
+      
       setPedidoSeleccionado(null);
       setMontoPagado('');
       setMetodoPago('EFECTIVO');
@@ -444,6 +451,50 @@ export default function CajeroManager({ pedidos: pedidosIniciales, usuarioId }: 
           onClose={() => setMostrarArqueo(false)}
           usuarioId={usuarioId}
         />
+      )}
+
+      {/* Modal de Venta Completada */}
+      {ventaCompletada && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6 text-center">
+              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold">¡Pago Procesado!</h2>
+              <p className="text-green-100 mt-2">La venta se ha completado exitosamente</p>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <p className="text-center text-gray-600">
+                ¿Desea descargar el comprobante de venta?
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setVentaCompletada(null)}
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Cerrar
+                </button>
+                <button
+                  onClick={() => {
+                    window.open(`/api/factura/${ventaCompletada}`, '_blank');
+                    setVentaCompletada(null);
+                  }}
+                  className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Descargar PDF
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

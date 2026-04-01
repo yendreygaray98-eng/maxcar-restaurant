@@ -118,6 +118,25 @@ model Arqueo {
   @@map("arqueos")
 }
 
+model ConfiguracionRestaurante {
+  id                    String   @id @default(uuid())
+  nombreRestaurante     String   @map("nombre_restaurante")
+  nit                   String
+  direccion             String
+  telefono              String
+  email                 String?
+  ciudad                String
+  regimenTributario     String   @default("Régimen Simplificado") @map("regimen_tributario")
+  resolucionDian        String?  @map("resolucion_dian")
+  rangoFacturacion      String?  @map("rango_facturacion")
+  logoUrl               String?  @map("logo_url")
+  pieFactura            String?  @map("pie_factura")
+  createdAt             DateTime @default(now()) @map("creado_en")
+  updatedAt             DateTime @updatedAt @map("actualizado_en")
+
+  @@map("configuracion_restaurante")
+}
+
 enum MetodoPago {
   EFECTIVO
   TARJETA

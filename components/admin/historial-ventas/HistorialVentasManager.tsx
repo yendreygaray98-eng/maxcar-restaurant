@@ -85,8 +85,8 @@ export default function HistorialVentasManager({ ventas }: Props) {
   };
 
   const descargarFactura = (venta: Venta) => {
-    // Por ahora solo muestra el detalle, luego implementaremos el PDF
-    setVentaSeleccionada(venta);
+    // Abrir el PDF en una nueva pestaña
+    window.open(`/api/factura/${venta.id}`, '_blank');
   };
 
   return (
@@ -243,12 +243,20 @@ export default function HistorialVentasManager({ ventas }: Props) {
                     ${Number(venta.total).toLocaleString()}
                   </td>
                   <td className="py-3 px-4 text-center">
-                    <button
-                      onClick={() => descargarFactura(venta)}
-                      className="text-purple-600 hover:text-purple-700 font-medium text-sm"
-                    >
-                      Ver Detalle
-                    </button>
+                    <div className="flex gap-2 justify-center">
+                      <button
+                        onClick={() => setVentaSeleccionada(venta)}
+                        className="text-purple-600 hover:text-purple-700 font-medium text-sm"
+                      >
+                        Ver Detalle
+                      </button>
+                      <button
+                        onClick={() => descargarFactura(venta)}
+                        className="text-blue-600 hover:text-blue-700 font-medium text-sm"
+                      >
+                        Descargar PDF
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -381,14 +389,12 @@ export default function HistorialVentasManager({ ventas }: Props) {
                 >
                   Cerrar
                 </button>
-                {ventaSeleccionada.numeroFactura && (
-                  <button
-                    onClick={() => alert('Función de descarga de PDF próximamente')}
-                    className="flex-1 px-4 py-3 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 transition-colors"
-                  >
-                    Descargar Factura PDF
-                  </button>
-                )}
+                <button
+                  onClick={() => descargarFactura(ventaSeleccionada)}
+                  className="flex-1 px-4 py-3 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 transition-colors"
+                >
+                  Descargar PDF
+                </button>
               </div>
             </div>
           </div>
