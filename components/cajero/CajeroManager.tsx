@@ -184,17 +184,19 @@ export default function CajeroManager({ pedidos: pedidosIniciales, usuarioId }: 
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
           {pedidos.map((pedido) => (
-            <div key={pedido.id} className="bg-white rounded-lg shadow-md border-2 border-emerald-300 overflow-hidden hover:shadow-lg transition-shadow">
+            <div key={pedido.id} className="bg-white rounded-lg shadow-md border-2 border-emerald-300 overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
               <div className="bg-gradient-to-r from-emerald-500 to-green-500 text-white p-4">
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="text-2xl font-bold">Pedido #{pedido.numero}</h3>
                     <p className="text-emerald-100">Mesa #{pedido.mesa.numero}</p>
-                    {pedido.mesa.tipo === 'VIP' && (
-                      <span className="inline-block mt-1 bg-purple-600 text-white text-xs font-bold px-2 py-1 rounded">
-                        VIP
-                      </span>
-                    )}
+                    <div className="h-6 mt-1">
+                      {pedido.mesa.tipo === 'VIP' && (
+                        <span className="inline-block bg-purple-600 text-white text-xs font-bold px-2 py-1 rounded">
+                          VIP
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="text-right">
                     <p className="text-sm text-emerald-100">Listo desde</p>
@@ -205,8 +207,8 @@ export default function CajeroManager({ pedidos: pedidosIniciales, usuarioId }: 
                 </div>
               </div>
 
-              <div className="p-4">
-                <div className="space-y-2 mb-4">
+              <div className="p-4 flex flex-col flex-1">
+                <div className="space-y-2 mb-4 min-h-[120px]">
                   {pedido.detalles.map((detalle) => (
                     <div key={detalle.id} className="flex items-center gap-2 text-sm">
                       <span className="w-6 h-6 bg-emerald-100 rounded flex items-center justify-center font-bold text-emerald-700 text-xs">
@@ -217,7 +219,7 @@ export default function CajeroManager({ pedidos: pedidosIniciales, usuarioId }: 
                   ))}
                 </div>
 
-                <div className="border-t border-gray-200 pt-3 space-y-1 mb-4">
+                <div className="border-t border-gray-200 pt-3 space-y-1 mb-4 mt-auto">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Subtotal</span>
                     <span>${Number(pedido.subtotal).toLocaleString()}</span>
