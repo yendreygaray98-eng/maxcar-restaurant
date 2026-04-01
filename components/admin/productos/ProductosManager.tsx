@@ -119,15 +119,13 @@ export default function ProductosManager({ productos, categorias }: Props) {
                 </span>
               </div>
 
-              {producto.descripcion && (
-                <p className="text-sm text-gray-600 mb-3 line-clamp-2 min-h-[2.5rem]">
-                  {producto.descripcion}
-                </p>
-              )}
-              
-              {!producto.descripcion && (
-                <div className="mb-3 min-h-[2.5rem]"></div>
-              )}
+              <div className="mb-3 h-[2.5rem]">
+                {producto.descripcion && (
+                  <p className="text-sm text-gray-600 line-clamp-2">
+                    {producto.descripcion}
+                  </p>
+                )}
+              </div>
 
               <div className="flex items-center justify-between mb-3">
                 <span className="text-2xl font-bold text-gray-900">
@@ -135,8 +133,8 @@ export default function ProductosManager({ productos, categorias }: Props) {
                 </span>
               </div>
 
-              {producto.categoria.codigo === 'BEB' && (
-                <div className="flex items-center gap-2 text-sm mb-3">
+              {producto.categoria.codigo === 'BEB' ? (
+                <div className="flex items-center gap-2 text-sm mb-3 h-6">
                   <span className="text-gray-600">Stock:</span>
                   <span className={`font-medium ${
                     (producto.stockActual || 0) <= (producto.stockMinimo || 0)
@@ -146,6 +144,8 @@ export default function ProductosManager({ productos, categorias }: Props) {
                     {producto.stockActual || 0} unidades
                   </span>
                 </div>
+              ) : (
+                <div className="mb-3 h-6"></div>
               )}
 
               <div className="flex gap-2 mt-auto">
