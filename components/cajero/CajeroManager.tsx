@@ -222,12 +222,16 @@ export default function CajeroManager({ pedidos: pedidosIniciales, usuarioId }: 
                     <span className="text-gray-600">Subtotal</span>
                     <span>${Number(pedido.subtotal).toLocaleString()}</span>
                   </div>
-                  {Number(pedido.cargoVip) > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Cargo VIP</span>
-                      <span className="text-purple-600">${Number(pedido.cargoVip).toLocaleString()}</span>
-                    </div>
-                  )}
+                  <div className="flex justify-between text-sm h-5">
+                    {Number(pedido.cargoVip) > 0 ? (
+                      <>
+                        <span className="text-gray-600">Cargo VIP</span>
+                        <span className="text-purple-600">${Number(pedido.cargoVip).toLocaleString()}</span>
+                      </>
+                    ) : (
+                      <span></span>
+                    )}
+                  </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">IVA</span>
                     <span>${Number(pedido.iva).toLocaleString()}</span>
