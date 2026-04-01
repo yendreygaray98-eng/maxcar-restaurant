@@ -110,19 +110,23 @@ export default function ProductosManager({ productos, categorias }: Props) {
             
             <div className="p-4 flex flex-col flex-1">
               <div className="flex items-start justify-between mb-2">
-                <div>
+                <div className="flex-1 min-w-0 pr-2">
                   <p className="text-xs text-gray-500 mb-1">{producto.codigo}</p>
-                  <h3 className="text-lg font-semibold text-gray-900">{producto.nombre}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 min-h-[3.5rem]">{producto.nombre}</h3>
                 </div>
-                <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded">
+                <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded whitespace-nowrap flex-shrink-0">
                   {producto.categoria.nombre}
                 </span>
               </div>
 
               {producto.descripcion && (
-                <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                <p className="text-sm text-gray-600 mb-3 line-clamp-2 min-h-[2.5rem]">
                   {producto.descripcion}
                 </p>
+              )}
+              
+              {!producto.descripcion && (
+                <div className="mb-3 min-h-[2.5rem]"></div>
               )}
 
               <div className="flex items-center justify-between mb-3">
