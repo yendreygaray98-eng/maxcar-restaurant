@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useNotificationSound } from '@/lib/useNotificationSound';
 
 interface Producto {
   id: string;
@@ -45,12 +46,19 @@ export default function CocinaManager({ pedidos: pedidosIniciales, pedidosComple
   const [mostrarHistorial, setMostrarHistorial] = useState(false);
   const [actualizando, setActualizando] = useState(false);
   const [ultimaActualizacion, setUltimaActualizacion] = useState(new Date());
+  const { checkForNewItems } = useNotificationSound();
 
   useEffect(() => {
     // Actualizar pedidos cuando cambien los props
     setPedidos(pedidosIniciales);
     setUltimaActualizacion(new Date());
-  }, [pedidosIniciales]);
+    
+    // Detectar nuevas órdenes y reproducir sonido
+    const pedidosPendientes = pedidosIniciales.filter(
+      p => p.estado === 'PENDIENTE' || p.estado === 'EN_PREPARACION'
+    );
+    checkForNewItems(pedidosPendientes.length, 'nueva-orden');
+  }, [pedidosIniciales, checkForNewItems]);
 
   useEffect(() => {
     // Auto-refresh cada 5 segundos
