@@ -217,6 +217,19 @@ export default function ReportesManager({ pedidos, arqueos, usuarios }: Props) {
 
   return (
     <div className="space-y-6">
+      {/* Botón de regreso */}
+      <div>
+        <a
+          href="/admin"
+          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Volver al Dashboard
+        </a>
+      </div>
+
       {/* Filtros de fecha */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h2 className="text-lg font-bold text-gray-900 mb-4">Período de Análisis</h2>
