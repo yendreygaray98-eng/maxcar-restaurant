@@ -25,12 +25,40 @@ export async function PATCH(
       },
     });
 
+    // Preparar datos de actualización
+    const updateData: any = {
+      estado: body.estado,
+      metodoPago: body.metodoPago || undefined,
+    };
+
+    // Si requiere factura, generar número y guardar datos del cliente
+    if (body.clienteNombre && body.clienteDocumento) {
+      // Generar número de factura único
+      const ultimaFactura = await prisma.pedido.findFirst({
+        where: {
+          numeroFactura: {
+            not: null,
+          },
+        },
+        orderBy: {
+          numeroFactura: 'desc',
+        },
+      });
+
+      let numeroFactura = 'F-0001';
+      if (ultimaFactura && ultimaFactura.numeroFactura) {
+        const ultimoNumero = parseInt(ultimaFactura.numeroFactura.split('-')[1]);
+        numeroFactura = `F-${String(ultimoNumero + 1).padStart(4, '0')}`;
+      }
+
+      updateData.numeroFactura = numeroFactura;
+      updateData.clienteNombre = body.clienteNombre;
+      updateData.clienteDocumento = body.clienteDocumento;
+    }
+
     const pedido = await prisma.pedido.update({
       where: { id },
-      data: {
-        estado: body.estado,
-        metodoPago: body.metodoPago || undefined,
-      },
+      data: updateData,
       include: {
         mesa: true,
         detalles: {

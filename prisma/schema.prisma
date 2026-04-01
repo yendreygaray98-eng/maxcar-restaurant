@@ -63,20 +63,23 @@ model Mesa {
 }
 
 model Pedido {
-  id          String          @id @default(uuid())
-  numero      String          @unique
-  mesaId      String          @map("mesa_id")
-  mesa        Mesa            @relation(fields: [mesaId], references: [id])
-  usuarioId   String          @map("usuario_id")
-  estado      EstadoPedido    @default(PENDIENTE)
-  metodoPago  MetodoPago?     @map("metodo_pago")
-  subtotal    Decimal         @db.Decimal(10, 2)
-  cargoVip    Decimal         @default(0) @map("cargo_vip") @db.Decimal(10, 2)
-  iva         Decimal         @db.Decimal(10, 2)
-  total       Decimal         @db.Decimal(10, 2)
-  detalles    DetallePedido[]
-  createdAt   DateTime        @default(now()) @map("creado_en")
-  updatedAt   DateTime        @updatedAt @map("actualizado_en")
+  id               String          @id @default(uuid())
+  numero           String          @unique
+  mesaId           String          @map("mesa_id")
+  mesa             Mesa            @relation(fields: [mesaId], references: [id])
+  usuarioId        String          @map("usuario_id")
+  estado           EstadoPedido    @default(PENDIENTE)
+  metodoPago       MetodoPago?     @map("metodo_pago")
+  numeroFactura    String?         @unique @map("numero_factura")
+  clienteNombre    String?         @map("cliente_nombre")
+  clienteDocumento String?         @map("cliente_documento")
+  subtotal         Decimal         @db.Decimal(10, 2)
+  cargoVip         Decimal         @default(0) @map("cargo_vip") @db.Decimal(10, 2)
+  iva              Decimal         @db.Decimal(10, 2)
+  total            Decimal         @db.Decimal(10, 2)
+  detalles         DetallePedido[]
+  createdAt        DateTime        @default(now()) @map("creado_en")
+  updatedAt        DateTime        @updatedAt @map("actualizado_en")
 
   @@map("pedidos")
 }

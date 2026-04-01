@@ -52,6 +52,9 @@ export default function CajeroManager({ pedidos: pedidosIniciales, usuarioId }: 
   const [montoPagado, setMontoPagado] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [mostrarArqueo, setMostrarArqueo] = useState(false);
+  const [requiereFactura, setRequiereFactura] = useState(false);
+  const [clienteNombre, setClienteNombre] = useState('');
+  const [clienteDocumento, setClienteDocumento] = useState('');
 
   const handleCobrar = async () => {
     if (!pedidoSeleccionado) return;
@@ -64,17 +67,29 @@ export default function CajeroManager({ pedidos: pedidosIniciales, usuarioId }: 
       return;
     }
 
+    if (requiereFactura && (!clienteNombre || !clienteDocumento)) {
+      alert('Por favor complete los datos del cliente para la factura');
+      return;
+    }
+
     setLoading(true);
     try {
+      const body: any = { 
+        estado: 'ENTREGADO',
+        metodoPago: metodoPago,
+      };
+
+      if (requiereFactura) {
+        body.clienteNombre = clienteNombre;
+        body.clienteDocumento = clienteDocumento;
+      }
+
       const response = await fetch(`/api/pedidos/${pedidoSeleccionado.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          estado: 'ENTREGADO',
-          metodoPago: metodoPago,
-        }),
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
@@ -86,6 +101,9 @@ export default function CajeroManager({ pedidos: pedidosIniciales, usuarioId }: 
       setPedidoSeleccionado(null);
       setMontoPagado('');
       setMetodoPago('EFECTIVO');
+      setRequiereFactura(false);
+      setClienteNombre('');
+      setClienteDocumento('');
       router.refresh();
     } catch (error) {
       alert('Error al procesar el pago');
@@ -350,12 +368,57 @@ export default function CajeroManager({ pedidos: pedidosIniciales, usuarioId }: 
                 </>
               )}
 
+              {/* Opción de Factura */}
+              <div className="border-t border-gray-200 pt-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={requiereFactura}
+                    onChange={(e) => setRequiereFactura(e.target.checked)}
+                    className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
+                  />
+                  <span className="text-sm font-medium text-gray-700">Requiere Factura</span>
+                </label>
+              </div>
+
+              {requiereFactura && (
+                <div className="space-y-3 bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nombre del Cliente
+                    </label>
+                    <input
+                      type="text"
+                      value={clienteNombre}
+                      onChange={(e) => setClienteNombre(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      placeholder="Nombre completo"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Documento (CC/NIT)
+                    </label>
+                    <input
+                      type="text"
+                      value={clienteDocumento}
+                      onChange={(e) => setClienteDocumento(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      placeholder="Número de documento"
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="flex gap-3 pt-4">
                 <button
                   onClick={() => {
                     setPedidoSeleccionado(null);
                     setMontoPagado('');
                     setMetodoPago('EFECTIVO');
+                    setRequiereFactura(false);
+                    setClienteNombre('');
+                    setClienteDocumento('');
                   }}
                   disabled={loading}
                   className="flex-1 px-4 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
