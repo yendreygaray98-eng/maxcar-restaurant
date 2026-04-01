@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import ArqueoModalMejorado from './ArqueoModalMejorado';
-import { useNotificationSound } from '@/lib/useNotificationSound';
 
 interface Producto {
   id: string;
@@ -63,16 +62,12 @@ export default function CajeroManager({ pedidos: pedidosIniciales, usuarioId, us
   const [referenciaTransaccion, setReferenciaTransaccion] = useState('');
   const [ultimos4Digitos, setUltimos4Digitos] = useState('');
   const [notasPago, setNotasPago] = useState('');
-  const { checkForNewItems } = useNotificationSound();
 
   useEffect(() => {
     // Actualizar pedidos cuando cambien los props
     setPedidos(pedidosIniciales);
     setUltimaActualizacion(new Date());
-    
-    // Detectar nuevos pedidos listos y reproducir sonido
-    checkForNewItems(pedidosIniciales.length, 'orden-lista');
-  }, [pedidosIniciales, checkForNewItems]);
+  }, [pedidosIniciales]);
 
   useEffect(() => {
     // Auto-refresh cada 5 segundos

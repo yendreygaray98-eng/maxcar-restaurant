@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useNotificationSound } from '@/lib/useNotificationSound';
 
 interface Mesa {
   id: string;
@@ -26,17 +25,12 @@ export default function MesasGrid({ mesas: mesasIniciales }: Props) {
   const [loading, setLoading] = useState(false);
   const [actualizando, setActualizando] = useState(false);
   const [ultimaActualizacion, setUltimaActualizacion] = useState(new Date());
-  const { checkForNewItems } = useNotificationSound();
 
   useEffect(() => {
     // Actualizar mesas cuando cambien los props
     setMesas(mesasIniciales);
     setUltimaActualizacion(new Date());
-    
-    // Detectar mesas que se liberaron (fueron cobradas) y reproducir sonido
-    const mesasLibres = mesasIniciales.filter(m => m.estado === 'LIBRE');
-    checkForNewItems(mesasLibres.length, 'orden-cobrada');
-  }, [mesasIniciales, checkForNewItems]);
+  }, [mesasIniciales]);
 
   useEffect(() => {
     // Auto-refresh cada 3 segundos (más frecuente para evitar conflictos)
