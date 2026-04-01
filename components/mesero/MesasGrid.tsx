@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface Mesa {
@@ -23,6 +23,25 @@ export default function MesasGrid({ mesas: mesasIniciales }: Props) {
   const [mesaSeleccionada, setMesaSeleccionada] = useState<Mesa | null>(null);
   const [mostrarMenu, setMostrarMenu] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [actualizando, setActualizando] = useState(false);
+  const [ultimaActualizacion, setUltimaActualizacion] = useState(new Date());
+
+  useEffect(() => {
+    // Actualizar mesas cuando cambien los props
+    setMesas(mesasIniciales);
+    setUltimaActualizacion(new Date());
+  }, [mesasIniciales]);
+
+  useEffect(() => {
+    // Auto-refresh cada 3 segundos (más frecuente para evitar conflictos)
+    const interval = setInterval(() => {
+      setActualizando(true);
+      router.refresh();
+      setTimeout(() => setActualizando(false), 500);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [router]);
 
   const mesasFiltradas = mesas.filter((mesa) => {
     const matchEstado = !filtroEstado || mesa.estado === filtroEstado;
@@ -73,14 +92,29 @@ export default function MesasGrid({ mesas: mesasIniciales }: Props) {
     }
   };
 
-  const handleMesaClick = (mesa: Mesa, e: React.MouseEvent) => {
+  const handleMesaClick = async (mesa: Mesa, e: React.MouseEvent) => {
     e.preventDefault();
     if (mesa.estado === 'MANTENIMIENTO') {
       alert('Esta mesa está en mantenimiento');
       return;
     }
-    setMesaSeleccionada(mesa);
-    setMostrarMenu(true);
+    
+    // Verificar estado actual antes de permitir acción
+    try {
+      const response = await fetch(`/api/mesas/${mesa.id}`);
+      const mesaActual = await response.json();
+      
+      if (mesaActual.estado !== mesa.estado) {
+        alert(`Esta mesa acaba de cambiar de estado. Estado actual: ${mesaActual.estado}. Actualizando...`);
+        router.refresh();
+        return;
+      }
+      
+      setMesaSeleccionada(mesa);
+      setMostrarMenu(true);
+    } catch (error) {
+      alert('Error al verificar el estado de la mesa');
+    }
   };
 
   const handleCambiarEstado = async (nuevoEstado: string) => {
@@ -186,6 +220,24 @@ export default function MesasGrid({ mesas: mesasIniciales }: Props) {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Indicador de sincronización */}
+      <div className="flex items-center gap-2 bg-white rounded-lg shadow-sm border border-gray-200 p-3">
+        {actualizando ? (
+          <>
+            <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+            <span className="text-sm text-gray-600">Actualizando mesas...</span>
+          </>
+        ) : (
+          <>
+            <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+            <span className="text-sm text-gray-600">
+              Última actualización: {ultimaActualizacion.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+            </span>
+          </>
+        )}
+        <span className="text-xs text-gray-500 ml-auto">Auto-actualización cada 3 segundos</span>
       </div>
 
       {/* Filtros */}

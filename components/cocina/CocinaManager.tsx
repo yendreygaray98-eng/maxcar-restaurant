@@ -43,12 +43,22 @@ export default function CocinaManager({ pedidos: pedidosIniciales, pedidosComple
   const [pedidos, setPedidos] = useState(pedidosIniciales);
   const [loading, setLoading] = useState<string | null>(null);
   const [mostrarHistorial, setMostrarHistorial] = useState(false);
+  const [actualizando, setActualizando] = useState(false);
+  const [ultimaActualizacion, setUltimaActualizacion] = useState(new Date());
 
   useEffect(() => {
-    // Auto-refresh cada 30 segundos
+    // Actualizar pedidos cuando cambien los props
+    setPedidos(pedidosIniciales);
+    setUltimaActualizacion(new Date());
+  }, [pedidosIniciales]);
+
+  useEffect(() => {
+    // Auto-refresh cada 5 segundos
     const interval = setInterval(() => {
+      setActualizando(true);
       router.refresh();
-    }, 30000);
+      setTimeout(() => setActualizando(false), 500);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [router]);
@@ -101,6 +111,26 @@ export default function CocinaManager({ pedidos: pedidosIniciales, pedidosComple
 
   return (
     <div className="space-y-6">
+      {/* Indicador de sincronización */}
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          {actualizando ? (
+            <>
+              <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+              <span className="text-sm text-gray-600">Actualizando...</span>
+            </>
+          ) : (
+            <>
+              <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+              <span className="text-sm text-gray-600">
+                Última actualización: {ultimaActualizacion.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              </span>
+            </>
+          )}
+        </div>
+        <span className="text-xs text-gray-500">Auto-actualización cada 5 segundos</span>
+      </div>
+
       {/* Estadísticas */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">

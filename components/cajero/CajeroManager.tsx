@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import ArqueoModal from './ArqueoModal';
 
@@ -56,6 +56,25 @@ export default function CajeroManager({ pedidos: pedidosIniciales, usuarioId }: 
   const [clienteNombre, setClienteNombre] = useState('');
   const [clienteDocumento, setClienteDocumento] = useState('');
   const [ventaCompletada, setVentaCompletada] = useState<string | null>(null);
+  const [actualizando, setActualizando] = useState(false);
+  const [ultimaActualizacion, setUltimaActualizacion] = useState(new Date());
+
+  useEffect(() => {
+    // Actualizar pedidos cuando cambien los props
+    setPedidos(pedidosIniciales);
+    setUltimaActualizacion(new Date());
+  }, [pedidosIniciales]);
+
+  useEffect(() => {
+    // Auto-refresh cada 5 segundos
+    const interval = setInterval(() => {
+      setActualizando(true);
+      router.refresh();
+      setTimeout(() => setActualizando(false), 500);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [router]);
 
   const handleCobrar = async () => {
     if (!pedidoSeleccionado) return;
@@ -133,17 +152,37 @@ export default function CajeroManager({ pedidos: pedidosIniciales, usuarioId }: 
 
   return (
     <div className="space-y-6">
-      {/* Botón de Arqueo */}
-      <div className="flex justify-end">
-        <button
-          onClick={() => setMostrarArqueo(true)}
-          className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-lg font-bold hover:from-blue-700 hover:to-blue-800 transition-all flex items-center gap-2 shadow-lg"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-          </svg>
-          Arqueo de Caja
-        </button>
+      {/* Indicador de sincronización y Botón de Arqueo */}
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          {actualizando ? (
+            <>
+              <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+              <span className="text-sm text-gray-600">Actualizando...</span>
+            </>
+          ) : (
+            <>
+              <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+              <span className="text-sm text-gray-600">
+                Última actualización: {ultimaActualizacion.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              </span>
+            </>
+          )}
+          <span className="text-xs text-gray-500 ml-2">Auto-actualización cada 5 segundos</span>
+        </div>
+        
+        {/* Botón de Arqueo */}
+        <div>
+          <button
+            onClick={() => setMostrarArqueo(true)}
+            className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-lg font-bold hover:from-blue-700 hover:to-blue-800 transition-all flex items-center gap-2 shadow-lg"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            Arqueo de Caja
+          </button>
+        </div>
       </div>
 
       {/* Estadísticas */}
