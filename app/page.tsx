@@ -21,5 +21,9 @@ export default async function Home() {
     redirect('/cajero');
   }
   
+  if (session.user?.rol === 'DOMICILIARIO') {
+    redirect('/domiciliario');
+  }
+  
   redirect('/admin');
 }

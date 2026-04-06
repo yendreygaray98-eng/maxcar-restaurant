@@ -130,20 +130,24 @@ export async function PATCH(
         }
       }
 
-      // Liberar la mesa
-      await prisma.mesa.update({
-        where: { id: pedido.mesaId },
-        data: { estado: 'LIBRE' },
-      });
+      // Liberar la mesa si es pedido de mesa
+      if (pedido.mesaId) {
+        await prisma.mesa.update({
+          where: { id: pedido.mesaId },
+          data: { estado: 'LIBRE' },
+        });
+      }
     }
 
     // Si se cancela el pedido, no se resta nada (nunca se restó)
     if (body.estado === 'CANCELADO') {
-      // Liberar la mesa si estaba ocupada
-      await prisma.mesa.update({
-        where: { id: pedido.mesaId },
-        data: { estado: 'LIBRE' },
-      });
+      // Liberar la mesa si estaba ocupada y es pedido de mesa
+      if (pedido.mesaId) {
+        await prisma.mesa.update({
+          where: { id: pedido.mesaId },
+          data: { estado: 'LIBRE' },
+        });
+      }
     }
 
     return NextResponse.json(pedido);
